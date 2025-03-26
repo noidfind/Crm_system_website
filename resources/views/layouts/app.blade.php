@@ -4,70 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM Sistemi</title>
-    @vite('resources/css/app.css')
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-gray-100">
-    <nav class="bg-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between h-16">
-                <div class="flex">
-                    <div class="flex-shrink-0 flex items-center">
-                        <a href="/" class="text-xl font-bold text-gray-800">CRM</a>
-                    </div>
-                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        @if(auth()->check())
-                            @if(auth()->user()->isAdmin())
-                                <a href="{{ route('admin.dashboard') }}" class="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300">
-                                    Admin Panel
-                                </a>
-                                <a href="{{ route('customers.index') }}" class="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300">
-                                    Müşteriler
-                                </a>
-                            @elseif(auth()->user()->isUser())
-                                <a href="{{ route('user.dashboard') }}" class="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300">
-                                    Kullanıcı Panel
-                                </a>
-                            @endif
-                        @elseif(auth()->guard('customer')->check())
-                            <a href="{{ route('customer.dashboard') }}" class="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300">
-                                Müşteri Panel
+    <div class="min-h-screen flex">
+        <!-- Sidebar -->
+        <div class="w-64 bg-indigo-700 text-white">
+            <div class="p-6">
+                <h2 class="text-2xl font-semibold">CRM Sistemi</h2>
+                <p class="text-sm mt-1">Hoş geldiniz</p>
+            </div>
+            <nav class="mt-6">
+                <div class="px-4 space-y-2">
+                    <a href="{{ route('dashboard') }}" class="block px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors">
+                        <i class="fas fa-home mr-2"></i> Dashboard
+                    </a>
+                    @if(session('user_id'))
+                        @php
+                            $user = \App\Models\User::find(session('user_id'));
+                        @endphp
+                        @if($user && ($user->role == 'admin' || $user->role == 'user'))
+                            <a href="{{ route('customers.index') }}" class="block px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors">
+                                <i class="fas fa-users mr-2"></i> Müşteriler
+                            </a>
+                            <a href="{{ route('opportunities.index') }}" class="block px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors">
+                                <i class="fas fa-chart-line mr-2"></i> Fırsatlar
+                            </a>
+                            <a href="{{ route('tasks.index') }}" class="block px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors">
+                                <i class="fas fa-tasks mr-2"></i> Görevler
                             </a>
                         @endif
-                    </div>
-                </div>
-                <div class="hidden sm:ml-6 sm:flex sm:items-center">
-                    @if(auth()->check() || auth()->guard('customer')->check())
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="text-gray-900 hover:text-gray-700">Çıkış Yap</button>
-                        </form>
-                    @else
-                        <a href="{{ route('login') }}" class="text-gray-900 hover:text-gray-700 px-3 py-2">Giriş Yap</a>
-                        <a href="{{ route('register') }}" class="text-gray-900 hover:text-gray-700 px-3 py-2">Kayıt Ol</a>
+                        <a href="{{ route('tickets.index') }}" class="block px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors">
+                            <i class="fas fa-ticket-alt mr-2"></i> Destek Talepleri
+                        </a>
                     @endif
                 </div>
-            </div>
+            </nav>
         </div>
-    </nav>
 
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        @if(session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <span class="block sm:inline">{{ session('success') }}</span>
+        <!-- Main Content -->
+        <div class="flex-1">
+            <!-- Top Navigation -->
+            <div class="bg-white shadow">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between h-16">
+                        <div class="flex items-center">
+                            <h1 class="text-xl font-semibold">@yield('title', 'Dashboard')</h1>
+                        </div>
+                        <div class="flex items-center">
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Çıkış Yap
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-        @endif
 
-        @if($errors->any())
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <ul>
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        @yield('content')
-    </main>
+            <!-- Page Content -->
+            <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                @yield('content')
+            </main>
+        </div>
+    </div>
 </body>
 </html> 
